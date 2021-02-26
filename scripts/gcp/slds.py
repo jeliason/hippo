@@ -4,12 +4,13 @@ import sys
 
 it = sys.argv[1]
 
-DATA_PATH = './data/'
-DUMP_PATH = './data/fitted/'
+DATA_PATH = sys.argv[2]
+DUMP_PATH = sys.argv[2]
+
 lb = 95
 ub = 100
 
-[y_train, y_test] = pickle.load(open(DATA_PATH + f'train_test_{lb}-{ub}.pkl', 'rb'))
+[y_train, y_test] = pickle.load(open(DATA_PATH + f'/train_test_{lb}-{ub}.pkl', 'rb'))
 N = y_train.shape[1]
 K = 5
 D = 2
@@ -22,4 +23,4 @@ q_lem_elbos, q_lem = slds_lem.fit(y_train, method="laplace_em",
                               variational_posterior="structured_meanfield",
                               num_iters=20, initialize=False, alpha=0)
 
-pickle.dump([[q_lem_elbos, q_lem], y_train], open(DUMP_PATH + f'lem_{it}.pkl', 'wb'))
+pickle.dump([[q_lem_elbos, q_lem], y_train], open(DUMP_PATH + f'/lem_{it}.pkl', 'wb'))
