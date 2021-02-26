@@ -1,0 +1,54 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library('R.matlab')
+library('corrplot')
+```
+
+```{r}
+temp = list.files(pattern="dataFromTrain_*")
+matfiles = lapply(temp, readMat)
+
+transMats = lapply(matfiles, function(x) {
+  x$c
+})
+
+compareTransMats = function(a,b) {
+  ord_a = order(colSums(a))
+  reordered_a = a[ord_a,ord_a]
+  
+  ord_b = order(colSums(b))
+  reordered_b = b[ord_b,ord_b]
+  
+  norm(reordered_b - reordered_a, type = "F")
+}
+
+compareTransMats(transMats[[1]], transMats[[2]])
+
+comparisonsOfTransMats = sapply(transMats, function(x) sapply(transMats, function(y) compareTransMats(x,y)))
+
+corrplot(comparisonsOfTransMats, is.corr = F)
+
+```
+
+```{r}
+a = transMats[[1]]
+b = transMats[[2]]
+
+ord_a = order(colSums(a))
+reordered_a = a[ord_a,ord_a]
+
+ord_b = order(colSums(b))
+reordered_b = b[ord_b,ord_b]
+
+corrplot(a - b, is.corr = F)
+
+corrplot(a, is.corr = F)
+
+corrplot(b, is.corr = F)
+```
+

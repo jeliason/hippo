@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+
+renv*
+*.mat
+*.PDF
+*.pkl
+*/nSTAT-master/*
+*.zip
+MATLAB_codes/*
