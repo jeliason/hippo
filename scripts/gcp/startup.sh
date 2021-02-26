@@ -2,10 +2,10 @@ sudo -i
 
 mkdir data
 
-TRIAL_NO=1
+TRIAL_NO=2
 BUCKET_NAME='hippo_data'
 TRAIN_DATA_OBJECT='train_test_95-100.pkl'
-DATA_LOCATION='/root/data'
+DATA_LOCATION=$(readlink -f data/)
 
 gsutil cp gs://$BUCKET_NAME/$TRAIN_DATA_OBJECT $DATA_LOCATION
 
@@ -28,10 +28,10 @@ source ~/hippo/scripts/gcp/env/bin/activate
 
 git clone https://github.com/lindermanlab/ssm.git
 pip install numpy cython
-pip install -e ~/ssm/
+pip install -e ./ssm/
 # /opt/hippo/scripts/gcp/env/bin/pip install -r /opt/hippo/scripts/gcp/requirements.txt
 
 
-python /root/hippo/scripts/gcp/slds.py $TRIAL_NO
+python ./hippo/scripts/gcp/slds.py $TRIAL_NO $DATA_LOCATION
 
 gsutil cp $DATA_LOCATION/lem_$TRIAL_NO.pkl gs://BUCKET_NAME
