@@ -5,7 +5,7 @@ import sys
 it = sys.argv[1]
 
 DATA_PATH = sys.argv[2]
-DUMP_PATH = sys.argv[2]
+DUMP_PATH = sys.argv[2] + f'/lem_trained_95-100'
 
 lb = 95
 ub = 100
@@ -23,4 +23,4 @@ q_lem_elbos, q_lem = slds_lem.fit(y_train, method="laplace_em",
                               variational_posterior="structured_meanfield",
                               num_iters=20, initialize=False, alpha=0)
 
-pickle.dump([[q_lem_elbos, q_lem], y_train], open(DUMP_PATH + f'/lem_{it}.pkl', 'wb'))
+pickle.dump([[q_lem_elbos, q_lem], y_train], open(DUMP_PATH + f'/{it}.pkl', 'wb'))

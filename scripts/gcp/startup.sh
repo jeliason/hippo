@@ -1,4 +1,5 @@
-sudo -i
+#!/bin/bash
+
 
 mkdir data
 
@@ -23,12 +24,12 @@ pip3 install --upgrade pip virtualenv
 git clone https://github.com/jeliason/hippo.git
 
 # Python environment setup
-virtualenv -p python3 ~/hippo/scripts/gcp/env
-source ~/hippo/scripts/gcp/env/bin/activate
+virtualenv -p python3 env
+source ./env/bin/activate
 
 git clone https://github.com/lindermanlab/ssm.git
-pip install numpy cython
-pip install -e ./ssm/
+pip3 install numpy cython
+pip3 install -e ./ssm/
 # /opt/hippo/scripts/gcp/env/bin/pip install -r /opt/hippo/scripts/gcp/requirements.txt
 
 
