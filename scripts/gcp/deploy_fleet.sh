@@ -4,7 +4,7 @@ export TRIALS=$1
 
 for i in `seq 1 $TRIALS`
 do
-  gcloud compute instances create "vm-$RANDOM" \
+  gcloud compute instances create "vm-$i" \
   --zone $ZONE \
   --source-instance-template $TEMPLATE \
   --metadata "trial=$i" \

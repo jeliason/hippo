@@ -16,7 +16,7 @@ git clone https://github.com/jeliason/hippo.git
 
 python3 ./hippo/scripts/gcp/slds.py $TRIAL_NO $DATA_LOCATION
 
-gsutil cp $DATA_LOCATION/lem_$TRIAL_NO.pkl gs://$BUCKET_NAME
+gsutil cp $DATA_LOCATION/lem_$TRIAL_NO.pkl gs://$BUCKET_NAME #TODO
 
 export NAME=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/name -H 'Metadata-Flavor: Google')
 export ZONE=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/zone -H 'Metadata-Flavor: Google')
