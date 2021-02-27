@@ -23,4 +23,4 @@ q_lem_elbos, q_lem = slds_lem.fit(y_train, method="laplace_em",
                               variational_posterior="structured_meanfield",
                               num_iters=20, initialize=False, alpha=0)
 
-pickle.dump([[q_lem_elbos, q_lem], y_train], open(DUMP_PATH + f'/{it}.pkl', 'wb'))
+pickle.dump([q_lem_elbos, q_lem], open(DUMP_PATH + f'/N{N}_K{K}_D{D}_it{it}.pkl', 'wb'))
