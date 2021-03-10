@@ -1,0 +1,22 @@
+---
+title: "hieararchical VAR"
+author: "Joel Eliason"
+date: "3/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# We'll use WDI data from the World Bank, dplyr and rstan
+library(WDI); library(dplyr)
+library(rstan)
+options(mc.cores = parallel::detectCores())
+
+# Grab gdp, consumption and investment (lcu constant prices)
+gdp_cons_inv <- WDI(indicator = c("NY.GDP.MKTP.KN","NE.CON.TOTL.KN", "NE.GDI.FTOT.KN"), 
+                    start = 1970) 
+```
+
