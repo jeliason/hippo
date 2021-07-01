@@ -1,0 +1,107 @@
+---
+title: "Information left after removing replay events"
+output: html_notebook
+---
+
+Things to think about:
+
+* Threshold PBEs at different levels (across PRE, RUN, POST)
+* Measure model quality at different thresholds
+
+
+```{r}
+library('R.matlab')
+library('tidyverse')
+
+```
+
+```{r}
+BDseqscore = readMat('BayesianReplayDetection.mat')
+```
+
+
+```{r}
+
+# weighted corr, wPBEtimeswap
+prctilePRE = BDseqscore$BDseqscore[[1]][[1]][[1]][[1]][[1]]
+prctileRUN = BDseqscore$BDseqscore[[2]][[1]][[1]][[1]][[1]]
+prctilePST = BDseqscore$BDseqscore[[3]][[1]][[1]][[1]][[1]]
+
+hist(prctilePRE)
+hist(prctileRUN)
+hist(prctilePST)
+
+```
+
+```{r}
+files = list.files(pattern="*.mat", path = "HMMtrainingReplayQuality", full.names = T)
+matfiles = lapply(files, readMat)
+```
+
+
+
+```{r}
+meanLL = lapply(dataLLs, function(ll) {
+  mean = mean(ll)
+  sd = sd(ll)
+  return(list(mean=mean,sd=sd))
+}) %>% transpose() %>% as.tibble() %>% unnest() %>%
+plot(meanLL$mean)
+
+plot(meanLL$sd)
+
+HMMprctiles = lapply(matfiles, function(ll) {
+  ll$HMMprctile
+})
+
+hist(HMMprctiles[[3]])
+```
+
+```{r}
+k = 30
+N = 8200
+bic = function(dataLL) {
+  n = N - length(dataLL)
+  mean(k*log(n) - 2*dataLL)
+}
+
+scaled_mean = function(dataLL) {
+  mean(dataLL)/length(dataLL)
+}
+threshold.df = matfiles %>%
+              transpose() %>%
+              as.tibble() %>%
+              mutate(threshold = c("50","60","70","80","85","90","95","97","98","99"))
+
+threshold.df %>%
+  mutate(mean_LL = map_dbl(dataLL, mean)) %>% 
+  mutate(sd_LL = map_dbl(dataLL, sd)) %>%
+  ggplot(aes(x=threshold, y=mean_LL)) + 
+      geom_errorbar(aes(ymin=mean_LL-sd_LL, ymax=mean_LL+sd_LL), width=.1) +
+      geom_line() +
+      geom_point()
+
+threshold.df %>%
+  mutate(bic = map_dbl(dataLL, bic)) %>%
+  ggplot(aes(x=threshold, y=bic)) + 
+      geom_line() +
+      geom_point()
+
+```
+
+```{r}
+threshold.df %>%
+  mutate(mean_LL = map_dbl(dataLL, mean)) %>% 
+  mutate(sd_LL = map_dbl(dataLL, sd))
+```
+
+
+### Basic statistics on replay events
+
+```{r}
+restricted50 = readMat('HMMtrainingReplayQuality/restricted_events_50_ref.mat')
+
+
+```
+
+

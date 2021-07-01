@@ -1,0 +1,69 @@
+---
+title: "EDA of trained HMM"
+author: "Joel Eliason"
+date: "9/23/2020"
+output: html_document
+fig_height: 8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('R.matlab')
+library('corrplot')
+library("tidyverse")
+```
+
+```{r}
+dataFromTrain = readMat('dataFromTrain.mat')
+
+lambda = dataFromTrain$lambda
+
+corLambda = cor(lambda)
+
+corrplot(corLambda)
+
+corrplot(dataFromTrain$transmat, is.corr = F)
+```
+
+What do the different paths look like on the test data?
+
+I'll be using the `TraMineR` package to visualize the sequences of paths. See [this link](http://www.bristol.ac.uk/media-library/sites/cmm/migrated/documents/sequence.pdf) for lots more interesting visualizations and statistics on sequences of discrete states. 
+
+```{r}
+viterbiPaths = readMat('viterbiPaths.mat')$viterbiPaths
+
+```
+
+```{r, message=F, warning=F, fig.height=8}
+library('TraMineR')
+
+dfViterbi <- viterbiPaths %>%
+  map_df(~.x %>% 
+           map(~if(length(.)) . else NA) %>% 
+           do.call(what = cbind) %>% 
+           as_tibble) 
+
+seqstatl(dfViterbi)
+
+hmm.seq = seqdef(dfViterbi, right = 'DEL')
+
+seqIplot(hmm.seq)
+
+dist.mostfreq <- seqdist(hmm.seq, method = "LCS", refseq = 0)
+seqIplot(hmm.seq, border = NA, sortv = dist.mostfreq)
+```
+
+```{r, fig.height=8}
+seqtab(hmm.seq)
+
+seqfplot(hmm.seq)
+
+seqmtplot(hmm.seq)
+
+seqdplot(hmm.seq)
+```
+
+```{r}
+seqistatd(hmm.seq)[1:10,]
+```
+

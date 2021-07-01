@@ -11,3 +11,5 @@ renv*
 */nSTAT-master/*
 *.zip
 MATLAB_codes/*
+
+*/service_account_key/*

@@ -1,0 +1,1 @@
+This folder contains the scripts to run an experiment in which the data is trained on one temporary regime (PRE, RUN, or POST) and then tested on another.

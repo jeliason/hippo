@@ -1,0 +1,123 @@
+---
+title: "EDA on HMM with different Bayesian replay thresholds"
+author: "Joel Eliason"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('R.matlab')
+library('corrplot')
+library("TraMineR")
+library("clue")
+library("plyr")
+library("tidyverse")
+```
+
+
+```{r}
+compute_state_overlap = function(z1, z2, K1=NA, K2=NA) {
+    # stopifnot(is.numeric(z1) & is.numeric(z2))
+    # stopifnot(dim(z1) == dim(z2))
+    # stopifnot(min(z1) >= 0 & min(z2) >= 0)
+
+    K1 = ifelse(is.na(K1), max(z1) + 1, K1)
+    K2 = ifelse(is.na(K2), max(z2) + 1, K2)
+    
+    overlap = matrix(0,K1,K2)
+    for (k1 in seq(K1)){
+        for (k2 in seq(K2)){
+            overlap[k1, k2] = sum((z1 == k1) & (z2 == k2))
+        }
+    }
+    overlap
+}
+
+find_permutation = function(z1, z2, K1=NA, K2=NA) {
+    overlap = compute_state_overlap(z1, z2, K1=K1, K2=K2)
+    K1 = dim(overlap)[1]
+    K2 = dim(overlap)[2]
+
+    perm <- solve_LSAP(overlap)
+    # stopifnot(all(tmp == seq(K1)))
+
+    # Pad permutation if K1 < K2
+    # if (K1 < K2) {
+    #     unused = np.array(list(set(np.arange(K2)) - set(perm)))
+    #     perm = np.concatenate((perm, unused))
+    # }
+    perm
+}
+
+permute = function(x, perm, nstates = 30) {
+    mapvalues(x, from = seq(nstates), to = perm, warn_missing = F)
+}
+```
+
+
+```{r}
+df50 = readMat('HMMtrainingReplayQuality/sameTestData/HMMReplayQuality_50.mat')
+
+df60 = readMat('HMMtrainingReplayQuality/sameTestData/HMMReplayQuality_60.mat')
+
+df99 = readMat('HMMtrainingReplayQuality/sameTestData/HMMReplayQuality_99.mat')
+
+```
+
+```{r}
+lambda50 = df50$lambda
+
+lambda60 = df60$lambda
+
+viterbi50 = df50$viterbiPaths[3][[1]][[1]]
+viterbi60 = df60$viterbiPaths[3][[1]][[1]]
+viterbi99 = df99$viterbiPaths[3][[1]][[1]]
+
+
+overlap = compute_state_overlap(viterbi50, viterbi60, K1 = 30, K2 = 30)
+
+which(overlap == max(overlap), arr.ind = T)
+
+perm = find_permutation(viterbi50, viterbi60, K1 = 30, K2 = 30)
+
+perm60 = mapvalues(viterbi60, from = seq(30), to = perm)
+
+viterbi60
+
+overlap
+
+```
+
+```{r}
+N = 922
+nstates = 30
+
+refPaths = df50$viterbiPaths
+
+thresholds = c(60,70,80,85,90,95,98,99)
+threshold = 60
+
+alignedTo50 = sapply(thresholds, function(threshold) {
+    df = readMat(paste0('HMMtrainingReplayQuality/sameTestData/HMMReplayQuality_',threshold,'.mat'))
+    viterbiPaths = df$viterbiPaths[1:N]
+    aligned = mapply(function(path, refPath) {
+        path = path[[1]][[1]]
+        refPath = refPath[[1]][[1]]
+        
+        perm = find_permutation(refPath, path, K1 = nstates, K2 = nstates)
+
+        permutedPath = permute(path, perm, nstates = nstates)
+        
+    }, viterbiPaths, refPaths)
+    rm(df)
+    return(aligned)
+})
+```
+
+```{r}
+corrplot(df50$transmat, is.corr = F)
+corrplot(df60$transmat, is.corr = F)
+
+```
+
